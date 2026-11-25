@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Spend Predictor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; min-height: 100vh; }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .navbar-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: 700; color: white; }
+        .back-btn { color: white; text-decoration: none; padding: 0.5rem 1.5rem; background: rgba(255,255,255,0.15); border-radius: 8px; font-weight: 600; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .back-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+        .page-bg {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            min-height: calc(100vh - 60px);
+            padding: 2rem 0 4rem;
+        }
+
+        .container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .header-icon { display: none; }
+        .header h1 {
+            font-size: 2.2rem; font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .header p { color: #94a3b8; font-size: 1rem; }
+
+        .input-card {
+            background: linear-gradient(135deg, rgba(30,58,138,0.4), rgba(30,64,175,0.2));
+            border: 1px solid rgba(96,165,250,0.2);
+            border-radius: 20px; padding: 2rem;
+            backdrop-filter: blur(20px);
+            margin-bottom: 2.5rem;
+        }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+        .input-group label { display: block; font-weight: 600; color: #93c5fd; margin-bottom: 0.5rem; font-size: 0.85rem; letter-spacing: 0.3px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 0.8rem 1rem;
+            background: rgba(15,23,42,0.6); border: 1.5px solid rgba(96,165,250,0.3);
+            border-radius: 12px; font-size: 1rem; color: white;
+            transition: all 0.3s;
+        }
+        .input-group select option { background: #1e293b; color: white; }
+        .input-group select optgroup { background: #0f172a; color: #93c5fd; font-weight: 700; }
+        .input-group input::placeholder { color: #475569; }
+        .input-group input:focus, .input-group select:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+
+        .predict-btn {
+            width: 100%; padding: 1rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; border: none; border-radius: 14px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s; letter-spacing: 0.5px;
+        }
+        .predict-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(16,185,129,0.35); }
+        .predict-btn:active { transform: translateY(0); }
+
+        .location-badge {
+            text-align: center; margin-bottom: 2rem; display: none;
+        }
+        .location-badge span {
+            display: inline-block; padding: 0.6rem 1.5rem;
+            background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(167,139,250,0.15));
+            border: 1px solid rgba(96,165,250,0.3); border-radius: 30px;
+            color: #93c5fd; font-weight: 600; font-size: 0.9rem;
+        }
+
+        .section-title {
+            text-align: center; margin-bottom: 1.5rem;
+            font-size: 1.3rem; font-weight: 700; color: #e2e8f0;
+        }
+
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+
+        .option-card {
+            border-radius: 18px; padding: 1.75rem;
+            position: relative; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+        .option-card:hover { transform: translateY(-6px); }
+
+        .option-card.cook {
+            background: linear-gradient(135deg, #065f46, #047857);
+            box-shadow: 0 8px 30px rgba(6,95,70,0.4);
+        }
+        .option-card.cook:hover { box-shadow: 0 16px 40px rgba(6,95,70,0.5); }
+
+        .option-card.tiffin {
+            background: linear-gradient(135deg, #7c2d12, #c2410c);
+            box-shadow: 0 8px 30px rgba(124,45,18,0.4);
+        }
+        .option-card.tiffin:hover { box-shadow: 0 16px 40px rgba(124,45,18,0.5); }
+
+        .option-card.online {
+            background: linear-gradient(135deg, #581c87, #7c3aed);
+            box-shadow: 0 8px 30px rgba(88,28,135,0.4);
+        }
+        .option-card.online:hover { box-shadow: 0 16px 40px rgba(88,28,135,0.5); }
+
+        .option-card.best-highlight::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24);
+            border-radius: 20px; z-index: -1;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow { from { opacity: 0.7; } to { opacity: 1; } }
+
+        .option-card.over-budget { opacity: 0.55; filter: grayscale(0.3); }
+
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .option-icon { display: none; }
+        .option-title { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.25rem; }
+        .option-desc { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 1.25rem; line-height: 1.5; }
+
+        .cost-block { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+        .cost-label { font-size: 0.7rem; color: rgba(255,255,255,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+        .cost-range { font-size: 1.6rem; font-weight: 800; color: white; }
+        .cost-avg { font-size: 0.85rem; color: rgba(255,255,255,0.8); margin-top: 0.25rem; }
+
+        .savings-section { margin-bottom: 0.75rem; }
+        .savings-bar { background: rgba(0,0,0,0.3); border-radius: 8px; height: 8px; overflow: hidden; margin-bottom: 0.35rem; }
+        .savings-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #fbbf24, #f59e0b); transition: width 0.8s ease; }
+        .savings-text { font-size: 0.8rem; color: #fde68a; font-weight: 700; }
+
+        .tag {
+            display: inline-block; padding: 0.35rem 1rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.3px;
+        }
+        .tag-best { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+        .tag-ok { background: rgba(255,255,255,0.2); color: white; }
+        .tag-over { background: rgba(239,68,68,0.3); color: #fca5a5; }
+
+        .summary-card {
+            background: linear-gradient(135deg, rgba(30,58,138,0.5), rgba(30,64,175,0.3));
+            border: 1px solid rgba(96,165,250,0.2);
+            border-radius: 18px; padding: 1.75rem;
+            backdrop-filter: blur(20px); display: none;
+        }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; text-align: center; }
+        .summary-item { padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; }
+        .summary-label { font-size: 0.75rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
+        .summary-value { font-size: 1.5rem; font-weight: 800; color: white; }
+
+        .tip-card {
+            margin-top: 1.5rem; padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(245,158,11,0.05));
+            border: 1px solid rgba(251,191,36,0.2); border-radius: 14px;
+            color: #fde68a; font-size: 0.9rem; display: none; line-height: 1.6;
+        }
+        .tip-card strong { color: #fbbf24; }
+
+        #results { display: none; }
+        #results.show { display: block; animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .input-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+            .container { padding: 0 1rem; }
+            .header h1 { font-size: 1.6rem; }
+            .option-card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">🍽️ Smart Spend Predictor</div>
+            <a href="/" class="back-btn">← Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="page-bg">
+        <div class="container">
+            <div class="header">
+
+                <h1>Smart Spending Predictor</h1>
+                <p>AI-powered food budget analysis based on your location</p>
+            </div>
+
+            <div class="input-card">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>💰 Your Budget</label>
+                        <input type="number" id="budget" placeholder="Enter amount" value="100" min="10">
+                    </div>
+                    <div class="input-group">
+                        <label>🍛 Food Item</label>
+                        <select id="foodItem">
+                            <option value="thali">Thali</option>
+                            <option value="biryani">Biryani</option>
+                            <option value="rice">Rice</option>
+                            <option value="dal">Dal</option>
+                            <option value="roti">Roti / Chapati</option>
+                            <option value="dosa">Dosa</option>
+                            <option value="idli">Idli</option>
+                            <option value="paneer">Paneer</option>
+                            <option value="chicken">Chicken</option>
+                            <option value="egg">Egg</option>
+                            <option value="fish">Fish</option>
+                            <option value="mutton">Mutton</option>
+                            <option value="pasta">Pasta</option>
+                            <option value="noodles">Noodles</option>
+                            <option value="pizza">Pizza</option>
+                            <option value="burger">Burger</option>
+                            <option value="sandwich">Sandwich</option>
+                            <option value="paratha">Paratha</option>
+                            <option value="poha">Poha</option>
+                            <option value="upma">Upma</option>
+                            <option value="samosa">Samosa</option>
+                            <option value="pav bhaji">Pav Bhaji</option>
+                            <option value="chole bhature">Chole Bhature</option>
+                            <option value="fried rice">Fried Rice</option>
+                            <option value="pulao">Pulao</option>
+                            <option value="maggi">Maggi</option>
+                            <option value="omelette">Omelette</option>
+                            <option value="salad">Salad</option>
+                            <option value="soup">Soup</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>📍 Location</label>
+                        <select id="location">
+                            <option value="">Auto from Profile</option>
+                            <optgroup label="⭐ Tier 1 — Metro Cities">
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="Hyderabad">Hyderabad</option>
+                                <option value="Chennai">Chennai</option>
+                                <option value="Kolkata">Kolkata</option>
+                                <option value="Pune">Pune</option>
+                            </optgroup>
+                            <optgroup label="🏙️ Tier 2 — Major Cities">
+                                <option value="Ahmedabad">Ahmedabad</option>
+                                <option value="Jaipur">Jaipur</option>
+                                <option value="Lucknow">Lucknow</option>
+                                <option value="Kanpur">Kanpur</option>
+                                <option value="Nagpur">Nagpur</option>
+                                <option value="Indore">Indore</option>
+                                <option value="Bhopal">Bhopal</option>
+                                <option value="Visakhapatnam">Visakhapatnam</option>
+                                <option value="Patna">Patna</option>
+                                <option value="Vadodara">Vadodara</option>
+                                <option value="Coimbatore">Coimbatore</option>
+                                <option value="Kochi">Kochi</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Guwahati">Guwahati</option>
+                                <option value="Mysore">Mysore</option>
+                            </optgroup>
+                            <optgroup label="🏘️ Tier 3 — Smaller Cities">
+                                <option value="Warangal">Warangal</option>
+                                <option value="Guntur">Guntur</option>
+                                <option value="Nellore">Nellore</option>
+                                <option value="Karimnagar">Karimnagar</option>
+                                <option value="Rajahmundry">Rajahmundry</option>
+                                <option value="Tirupati">Tirupati</option>
+                                <option value="Vijayawada">Vijayawada</option>
+                                <option value="Dehradun">Dehradun</option>
+                                <option value="Ranchi">Ranchi</option>
+                                <option value="Raipur">Raipur</option>
+                                <option value="Jodhpur">Jodhpur</option>
+                                <option value="Udaipur">Udaipur</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <button class="predict-btn" onclick="predict()">🔍 Predict Best Option</button>
+            </div>
+
+            <div id="results">
+                <div class="location-badge" id="locationBadge">
+                    <span id="locationText"></span>
+                </div>
+
+                <div class="section-title" id="sectionTitle"></div>
+                <div class="options-grid" id="optionsGrid"></div>
+
+                <div class="summary-card" id="summaryCard">
+                    <div class="summary-grid" id="summaryGrid"></div>
+                </div>
+
+                <div class="tip-card" id="tipCard"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/';
+
+        async function predict() {
+            const budget = parseFloat(document.getElementById('budget').value);
+            const food_item = document.getElementById('foodItem').value;
+            const location = document.getElementById('location').value;
+
+            if (!budget || budget < 10) { alert('Enter a valid budget (min ₹10)'); return; }
+
+            try {
+                const res = await fetch(`${API}/spending-predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ budget, food_item, location: location || undefined })
+                });
+                if (res.status === 401) { window.location.href = '/'; return; }
+                displayResults(await res.json());
+            } catch (e) { alert('Error: ' + e.message); }
+        }
+
+        function displayResults(data) {
+            const badge = document.getElementById('locationBadge');
+            document.getElementById('locationText').textContent = `📍 ${data.location} • ${data.city_tier} • ${data.food_item}`;
+            badge.style.display = 'block';
+
+            document.getElementById('sectionTitle').textContent = `₹${data.budget} Budget — ${data.food_item} Options`;
+
+            const modes = ['cook', 'tiffin', 'online'];
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = data.options.map((opt, i) => {
+                const isBest = opt.mode === data.best_option;
+                const mode = modes[i];
+                const bestCls = isBest ? ' best-highlight' : '';
+                const overCls = !opt.within_budget ? ' over-budget' : '';
+                const savingsPct = opt.within_budget ? Math.min(100, Math.round((opt.savings / data.budget) * 100)) : 0;
+
+                const tag = isBest ? '<span class="tag tag-best">⭐ BEST CHOICE</span>' :
+                    (opt.within_budget ? '<span class="tag tag-ok">✅ Within Budget</span>' :
+                    '<span class="tag tag-over">❌ Over Budget</span>');
+
+                return `
+                    <div class="option-card ${mode}${bestCls}${overCls}">
+                        <div class="card-top">
+                            <div>
+                                <div class="option-title">${opt.mode}</div>
+                                <div class="option-desc">${opt.description}</div>
+                            </div>
+    
+                        </div>
+                        <div class="cost-block">
+                            <div class="cost-label">Estimated Cost Range</div>
+                            <div class="cost-range">₹${opt.cost_low} – ₹${opt.cost_high}</div>
+                            <div class="cost-avg">Average: ₹${opt.estimated}</div>
+                        </div>
+                        ${opt.within_budget && opt.savings > 0 ? `
+                            <div class="savings-section">
+                                <div class="savings-bar"><div class="savings-fill" style="width:${savingsPct}%"></div></div>
+                                <div class="savings-text">💰 You save ₹${opt.savings}</div>
+                            </div>
+                        ` : ''}
+                        ${tag}
+                    </div>
+                `;
+            }).join('');
+
+            const summary = document.getElementById('summaryCard');
+            document.getElementById('summaryGrid').innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-label">Your Budget</div>
+                    <div class="summary-value">₹${data.budget}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">🏆 Best Option</div>
+                    <div class="summary-value" style="font-size:1.1rem;">${data.best_option}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Affordable</div>
+                    <div class="summary-value">${data.affordable_count} / ${data.options.length}</div>
+                </div>
+            `;
+            summary.style.display = 'block';
+
+            const tip = document.getElementById('tipCard');
+            if (data.affordable_count === 3) {
+                tip.innerHTML = `💡 <strong>Great budget!</strong> All 3 options are within your ₹${data.budget} budget. <strong>${data.best_option}</strong> gives you the most savings.`;
+            } else if (data.affordable_count > 0) {
+                tip.innerHTML = `💡 <strong>Tip:</strong> ${data.affordable_count} of 3 options fit your budget. Try <strong>${data.best_option}</strong> for the best value. Increase budget to ₹${data.options[2].cost_low} for all options.`;
+            } else {
+                tip.innerHTML = `⚠️ <strong>Budget too low</strong> for ${data.food_item} in ${data.location}. Try increasing to at least <strong>₹${data.options[0].cost_low}</strong> or pick a cheaper item.`;
+            }
+            tip.style.display = 'block';
+
+            document.getElementById('results').classList.add('show');
+        }
+    </script>
+</body>
+</html>

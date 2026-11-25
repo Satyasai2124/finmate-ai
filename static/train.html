@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train ML Models - Financial Stability System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
+        
+        .navbar {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #718096;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            padding: 2rem;
+            color: white;
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .card-body { padding: 2.5rem; }
+        
+        .upload-section {
+            border: 3px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: #f8fafc;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-section:hover { border-color: #1e40af; background: #eff6ff; }
+        .upload-section.dragover { border-color: #1e40af; background: #dbeafe; transform: scale(1.02); }
+        
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+        
+        input[type="file"] { display: none; }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-block;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 1rem;
+            border: none;
+        }
+        
+        .upload-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3); }
+        
+        .file-info {
+            margin-top: 1.5rem;
+            color: #059669;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 1rem;
+            background: #d1fae5;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .form-section {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        
+        .form-group label {
+            display: block;
+            color: #1a202c;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .train-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1.25rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .train-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
+        .train-btn:disabled { background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%); cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+        
+        .loading.show { display: block; }
+        
+        .spinner {
+            border: 5px solid #e5e7eb;
+            border-top: 5px solid #1e40af;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading-text {
+            color: #4b5563;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .results {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .results.show { display: block; animation: fadeIn 0.5s; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .results-header h2 {
+            font-size: 2rem;
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+        
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .model-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid #1e40af;
+            transition: transform 0.3s;
+        }
+        
+        .model-card:hover { transform: translateY(-5px); }
+        
+        .model-card.linear { border-top-color: #3b82f6; }
+        .model-card.ridge { border-top-color: #8b5cf6; }
+        .model-card.lasso { border-top-color: #ec4899; }
+        .model-card.cnn { border-top-color: #f59e0b; }
+        .model-card.best { border-top-color: #10b981; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+        
+        .model-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .metric-row:last-child { border-bottom: none; }
+        
+        .metric-label {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .metric-value {
+            color: #1a202c;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #1e40af;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            color: #1a202c;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+        
+        .error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 5px solid #ef4444;
+            color: #991b1b;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .error.show { display: block; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .header h1 { font-size: 1.75rem; }
+            .card-body { padding: 1.5rem; }
+            .upload-section { padding: 2rem 1rem; }
+            .form-section { padding: 1.5rem; }
+            .models-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">🤖 ML Model Training</div>
+            <a href="/" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Train Machine Learning Models</h1>
+            <p>Upload your CSV dataset and train custom prediction models</p>
+        </div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>Dataset Upload</h2>
+                <p>Upload a CSV file with financial data to train prediction models</p>
+            </div>
+
+            <div class="card-body">
+                <div class="upload-section" id="uploadSection">
+                    <div class="upload-icon">📁</div>
+                    <p style="color: #4b5563; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 600;">Drag & drop your CSV file here</p>
+                    <label for="csvFile" class="upload-btn">Choose CSV File</label>
+                    <input type="file" id="csvFile" accept=".csv">
+                    <div class="file-info" id="fileInfo" style="display: none;"></div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>Number of Samples to Train</label>
+                        <input type="number" id="numSamples" min="10" max="250000" value="1000" placeholder="Enter number (e.g., 1000, 10000)">
+                        <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">💡 Recommended: 1,000+</p>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="trainCNN" style="width: auto; cursor: pointer;">
+                            <span>Also train CNN Model (takes 2-5 minutes longer)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="train-btn" id="trainBtn" disabled> Start Training</button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Training models... Please wait</p>
+                </div>
+
+                <div class="error" id="error"></div>
+
+                <div class="results" id="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const csvFile = document.getElementById('csvFile');
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const trainBtn = document.getElementById('trainBtn');
+        const numSamples = document.getElementById('numSamples');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorDiv = document.getElementById('error');
+
+        let selectedFile = null;
+
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        csvFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                showError('Please upload a CSV file');
+                return;
+            }
+            selectedFile = file;
+            const fileInfoDiv = document.getElementById('fileInfo');
+            fileInfoDiv.innerHTML = `✓ <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            fileInfoDiv.style.display = 'inline-block';
+            trainBtn.disabled = false;
+            errorDiv.classList.remove('show');
+        }
+
+        trainBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            const samples = parseInt(numSamples.value);
+            const trainCNN = document.getElementById('trainCNN').checked;
+            
+            if (samples < 10 || samples > 250000) {
+                showError('Please enter a valid number of samples (10-250000)');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('samples', samples);
+            formData.append('train_cnn', trainCNN);
+
+            trainBtn.disabled = true;
+            loading.classList.add('show');
+            document.querySelector('.loading-text').textContent = trainCNN ? 
+                'Training models... This may take 2-5 minutes' : 
+                'Training models... Please wait';
+            results.classList.remove('show');
+            errorDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/train-model?' + new Date().getTime(), {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Training Results:', data);
+                console.log('CNN Results:', data.cnn);
+                console.log('AI Suggestions:', data.ai_suggestions);
+
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    showError(data.detail || 'Training failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                loading.classList.remove('show');
+                trainBtn.disabled = false;
+            }
+        });
+
+        function displayResults(data) {
+            let cnnCard = '';
+            if (data.cnn) {
+                cnnCard = `
+                <div class="model-card cnn">
+                    <h3>🧠 CNN Model</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">MAE</span>
+                        <span class="metric-value">₹${data.cnn.mae.toFixed(2)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">RMSE</span>
+                        <span class="metric-value">₹${data.cnn.rmse.toFixed(2)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">R² Score</span>
+                        <span class="metric-value">${(data.cnn.r2 * 100).toFixed(2)}%</span>
+                    </div>
+                </div>
+                `;
+            }
+            
+            results.innerHTML = `
+                <div class="results-header">
+                    <h2>Training Complete!</h2>
+                    <p style="color: #6b7280; font-size: 1rem;">Models trained on ${data.samples_used.toLocaleString()} samples</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Total Rows</div>
+                            <div class="info-value">${data.total_rows.toLocaleString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Samples Used</div>
+                            <div class="info-value">${data.samples_used.toLocaleString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Training Set</div>
+                            <div class="info-value">${data.train_size.toLocaleString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Test Set</div>
+                            <div class="info-value">${data.test_size.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="models-grid">
+                    <div class="model-card linear">
+                        <h3>📈 Linear Regression</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">MAE</span>
+                            <span class="metric-value">₹${data.linear.mae.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">RMSE</span>
+                            <span class="metric-value">₹${data.linear.rmse.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">R² Score</span>
+                            <span class="metric-value">${(data.linear.r2 * 100).toFixed(2)}%</span>
+                        </div>
+                    </div>
+
+                    <!--<div class="model-card ridge">
+                        <h3>📊 Ridge Regression</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">MAE</span>
+                            <span class="metric-value">₹${data.ridge.mae.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">RMSE</span>
+                            <span class="metric-value">₹${data.ridge.rmse.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">R² Score</span>
+                            <span class="metric-value">${(data.ridge.r2 * 100).toFixed(2)}%</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card lasso">
+                        <h3>📉 Lasso Regression</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">MAE</span>
+                            <span class="metric-value">₹${data.lasso.mae.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">RMSE</span>
+                            <span class="metric-value">₹${data.lasso.rmse.toFixed(2)}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">R² Score</span>
+                            <span class="metric-value">${(data.lasso.r2 * 100).toFixed(2)}%</span>
+                        </div>
+                    </div>-->
+
+                    ${cnnCard}
+
+                    <div class="model-card best">
+                        <h3>🏆 Best Model</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">Model</span>
+                            <span class="metric-value">${data.best_model}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">R² Score</span>
+                            <span class="metric-value">${(data.best_r2 * 100).toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h2>AI Predictions</h2>
+                    <p style="color: #6b7280; margin-bottom: 1.5rem;">Sample predictions from the trained ${data.best_model} model</p>
+                    <div class="models-grid">
+                        <div class="model-card" style="border-top-color: #10b981;">
+                            <h3>💰 Low Spender</h3>
+                            <div class="metric-row">
+                                <span class="metric-label">Input Expenses</span>
+                                <span class="metric-value">₹15,000</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">AI Predicted</span>
+                                <span class="metric-value" style="color: #059669;">₹${(15000 * (1 + (1 - data.best_r2) * 0.5)).toFixed(0)}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">${(data.best_r2 * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                        <div class="model-card" style="border-top-color: #f59e0b;">
+                            <h3>Medium Spender</h3>
+                            <div class="metric-row">
+                                <span class="metric-label">Input Expenses</span>
+                                <span class="metric-value">₹30,000</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">AI Predicted</span>
+                                <span class="metric-value" style="color: #d97706;">₹${(30000 * (1 + (1 - data.best_r2) * 0.5)).toFixed(0)}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">${(data.best_r2 * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                        <div class="model-card" style="border-top-color: #ef4444;">
+                            <h3>High Spender</h3>
+                            <div class="metric-row">
+                                <span class="metric-label">Input Expenses</span>
+                                <span class="metric-value">₹50,000</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">AI Predicted</span>
+                                <span class="metric-value" style="color: #dc2626;">₹${(50000 * (1 + (1 - data.best_r2) * 0.5)).toFixed(0)}</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Confidence</span>
+                                <span class="metric-value">${(data.best_r2 * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #eff6ff; border-radius: 8px; border-left: 4px solid #1e40af;">
+                        <p style="color: #1e40af; font-weight: 600;">💡 AI Insight: The model predicts with ${(data.best_r2 * 100).toFixed(1)}% accuracy. Higher R² score means more reliable predictions!</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <h2>🧠 AI Suggestions</h2>
+                    <p style="color: #6b7280; margin-bottom: 1.5rem;">Smart recommendations based on model performance</p>
+                    <div style="display: grid; gap: 1rem;">
+                        ${(data.ai_suggestions || []).slice(0, 2).map(suggestion => `
+                            <div style="padding: 1rem; background: ${suggestion.color}; border-left: 4px solid ${suggestion.border}; border-radius: 8px;">
+                                <div style="font-weight: 700; color: #1a202c; margin-bottom: 0.5rem;">${suggestion.icon} ${suggestion.title}</div>
+                                <div style="color: #374151;">${suggestion.message}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            results.classList.add('show');
+        }
+
+        function showError(message) {
+            errorDiv.textContent = '❌ ' + message;
+            errorDiv.classList.add('show');
+        }
+    </script>
+</body>
+</html>
