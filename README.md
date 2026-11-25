@@ -47,16 +47,24 @@ python3 app.py
 - **API Documentation**: http://localhost:8000/docs
 - **Interactive API**: http://localhost:8000/redoc
 
-## Production deployment (Render)
+## Temporary demo deployment (Render Free)
 
-The included `render.yaml` defines a Python web service and persistent PostgreSQL database.
-To publish it, connect this project to a GitHub repository in a Render account and create a
-new Blueprint using that repository. Render will create the service, database, generated
-`SECRET_KEY`, and health check configuration. The service does not seed the demo account
-in production. Users must register their own accounts.
+The included `render.yaml` defines a free Python web service and free PostgreSQL database.
+Render's free web service can take about a minute to wake after 15 minutes without traffic.
+The free PostgreSQL database is limited to 1 GB and expires 30 days after creation. After
+the 14-day recovery grace period, Render deletes the database and its data. This setup is
+for a temporary demo only; do not use it for real financial records or production data.
 
-The public URL is assigned by Render after the Blueprint deploy succeeds; it cannot be
-known or verified from this workspace without access to the hosting account.
+To publish the demo, connect this project to GitHub in Render and create a Blueprint from
+the repository. Render will create the service, database, generated `SECRET_KEY`, and
+health check configuration. The service does not seed the demo account in production.
+Users must register their own accounts.
+
+The public URL is assigned by Render after the Blueprint deploy succeeds.
+
+For durable production hosting, use a paid web service and persistent PostgreSQL database,
+or configure another trusted database provider. Review provider pricing and backup policies
+before using real financial data.
 
 For a manual deployment, configure:
 
